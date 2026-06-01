@@ -8,22 +8,22 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const OUTPUT_DIR = path.join(__dirname, "output");
-if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR);
+const outputDir = path.join(__dirname, "output");
+if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
 
-// 🔥 CONVERTER
+// CONVERTER
 app.post("/convert", (req, res) => {
     const { url, format } = req.body;
 
     if (!url) return res.status(400).json({ error: "sem url" });
 
     const fileName = `file_${Date.now()}.${format}`;
-    const outputPath = path.join(OUTPUT_DIR, fileName);
+    const filePath = path.join(outputDir, fileName);
 
     const cmd =
         format === "mp3"
-            ? `yt-dlp -x --audio-format mp3 -o "${outputPath}" "${url}"`
-            : `yt-dlp -o "${outputPath}" "${url}"`;
+            ? `yt-dlp -x --audio-format mp3 -o "${filePath}" "${url}"`
+            : `yt-dlp -o "${filePath}" "${url}"`;
 
     exec(cmd, (err) => {
         if (err) {
@@ -32,17 +32,16 @@ app.post("/convert", (req, res) => {
         }
 
         const downloadUrl = `https://${req.headers.host}/download/${fileName}`;
-
         res.json({ download: downloadUrl });
     });
 });
 
-// 🔥 download
+// DOWNLOAD
 app.get("/download/:file", (req, res) => {
-    const file = path.join(OUTPUT_DIR, req.params.file);
+    const file = path.join(outputDir, req.params.file);
     res.download(file);
 });
 
-app.listen(3000, () => {
+app.listen(process.env.PORT || 3000, () => {
     console.log("🔥 servidor a correr");
 });
