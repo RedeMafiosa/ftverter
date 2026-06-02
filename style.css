@@ -1,50 +1,158 @@
-body{
+@import url('https://fonts.googleapis.com/css2?family=Creepster&family=Orbitron:wght@400;700&display=swap');
+
+*{
     margin:0;
-    background:#111;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    min-height:100vh;
+
+    background:
+    radial-gradient(circle at center,
+    #2f004f 0%,
+    #12001f 40%,
+    #050505 100%);
+
     color:white;
-    font-family:Arial;
+
+    font-family:'Orbitron',sans-serif;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
 }
 
 nav{
-    background:#000;
-    padding:15px;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+
+    display:flex;
+    justify-content:center;
+    gap:40px;
+
+    padding:20px;
+
+    background:rgba(0,0,0,.35);
+    backdrop-filter:blur(10px);
+
+    border-bottom:1px solid #b400ff;
 }
 
 nav a{
     color:white;
     text-decoration:none;
-    margin-right:20px;
+
     font-weight:bold;
+    letter-spacing:2px;
+
+    transition:.3s;
+}
+
+nav a:hover{
+    color:#ff6bff;
+
+    text-shadow:
+    0 0 10px #ff00ff,
+    0 0 20px #ff00ff,
+    0 0 40px #ff00ff;
 }
 
 .container{
-    width:400px;
-    margin:50px auto;
     text-align:center;
+    width:90%;
+    max-width:900px;
 }
 
-input,
-select,
-button{
-    width:100%;
-    padding:12px;
-    margin-top:10px;
-    border-radius:8px;
-    border:none;
+.logo{
+
+    font-family:'Creepster',cursive;
+
+    font-size:110px;
+
+    color:#d946ff;
+
+    letter-spacing:5px;
+
+    text-shadow:
+    0 0 10px #ff00ff,
+    0 0 25px #ff00ff,
+    0 0 50px #b000ff,
+    0 0 100px #7000ff;
+
+    animation:pulse 2s infinite;
 }
 
-button{
-    background:#00ff88;
-    cursor:pointer;
-    font-weight:bold;
+.neon-text{
+
+    margin-top:25px;
+
+    font-size:24px;
+
+    color:white;
+
+    text-shadow:
+    0 0 5px #ffffff,
+    0 0 10px #d946ff,
+    0 0 20px #d946ff,
+    0 0 40px #d946ff;
 }
 
 .btn{
-    display:block;
-    background:#00ff88;
-    color:black;
+
+    display:inline-block;
+
+    margin-top:50px;
+
+    padding:18px 40px;
+
+    border-radius:50px;
+
     text-decoration:none;
-    padding:12px;
-    margin-top:20px;
-    border-radius:8px;
+
+    font-weight:bold;
+
+    color:white;
+
+    background:linear-gradient(
+        45deg,
+        #ff00ff,
+        #7000ff
+    );
+
+    box-shadow:
+    0 0 15px #ff00ff,
+    0 0 30px #ff00ff,
+    0 0 60px #7000ff;
+
+    transition:.3s;
+}
+
+.btn:hover{
+
+    transform:scale(1.08);
+
+    box-shadow:
+    0 0 20px #ff00ff,
+    0 0 50px #ff00ff,
+    0 0 100px #7000ff;
+}
+
+@keyframes pulse{
+
+    0%{
+        transform:scale(1);
+    }
+
+    50%{
+        transform:scale(1.03);
+    }
+
+    100%{
+        transform:scale(1);
+    }
+
 }
