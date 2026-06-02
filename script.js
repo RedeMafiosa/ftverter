@@ -1,32 +1,47 @@
 async function startConversion() {
-    const url = document.getElementById("urlInput").value;
-    const format = document.getElementById("format").value;
-    const status = document.getElementById("status");
-    const downloadBtn = document.getElementById("downloadBtn");
 
-    if (!url) {
-        alert("Cola um link!");
+    const url =
+    document.getElementById("urlInput").value;
+
+    const format =
+    document.getElementById("format").value;
+
+    const status =
+    document.getElementById("status");
+
+    if(!url){
+        alert("Cole um link.");
         return;
     }
 
-    status.innerText = "A enviar para servidor...";
+    status.innerHTML="A converter...";
 
-    const res = await fetch("https://ftverter.onrender.com/convert", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url, format })
-    });
+    try{
 
-    const data = await res.json();
+        const resposta =
+        await fetch("/convert",{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                url:url,
+                format:format
+            })
+        });
 
-    if (data.download) {
-        status.innerText = "Concluído ✔";
+        const dados =
+        await resposta.json();
 
-        downloadBtn.style.display = "block";
-        downloadBtn.onclick = () => {
-            window.open(data.download, "_blank");
-        };
-    } else {
-        status.innerText = "Erro na conversão ❌";
+        status.innerHTML=
+        "Concluído:<br><a href='"+
+        dados.download+
+        "' target='_blank'>DOWNLOAD</a>";
+
+    }catch(e){
+
+        status.innerHTML=
+        "Erro na conversão.";
+
     }
 }
