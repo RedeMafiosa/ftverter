@@ -1,47 +1,39 @@
 const express = require("express");
-const cors = require("cors");
-const { exec } = require("child_process");
 const path = require("path");
-const fs = require("fs");
 
 const app = express();
-app.use(cors());
+
 app.use(express.json());
 
-const outputDir = path.join(__dirname, "output");
-if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
+app.use(express.static(__dirname));
 
-// CONVERTER
-app.post("/convert", (req, res) => {
-    const { url, format } = req.body;
+app.get("/", (req,res)=>{
+    res.sendFile(
+        path.join(__dirname,"index.html")
+    );
+});
 
-    if (!url) return res.status(400).json({ error: "sem url" });
+app.get("/converter",(req,res)=>{
+    res.sendFile(
+        path.join(__dirname,"converter.html")
+    );
+});
 
-    const fileName = `file_${Date.now()}.${format}`;
-    const filePath = path.join(outputDir, fileName);
+app.post("/convert",(req,res)=>{
 
-    const cmd =
-        format === "mp3"
-            ? `yt-dlp -x --audio-format mp3 -o "${filePath}" "${url}"`
-            : `yt-dlp -o "${filePath}" "${url}"`;
+    const {url,format}=req.body;
 
-    exec(cmd, (err) => {
-        if (err) {
-            console.log(err);
-            return res.status(500).json({ error: "erro conversão" });
-        }
+    console.log(url,format);
 
-        const downloadUrl = `https://${req.headers.host}/download/${fileName}`;
-        res.json({ download: downloadUrl });
+    res.json({
+        download:"#"
     });
+
 });
 
-// DOWNLOAD
-app.get("/download/:file", (req, res) => {
-    const file = path.join(outputDir, req.params.file);
-    res.download(file);
-});
-
-app.listen(process.env.PORT || 3000, () => {
-    console.log("🔥 servidor a correr");
-});
+app.listen(
+    process.env.PORT || 3000,
+    ()=>{
+        console.log("Servidor online");
+    }
+);
