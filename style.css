@@ -156,3 +156,148 @@ nav a:hover{
     }
 
 }
+/* CAMPOS INPUT */
+
+input,
+select{
+
+    width:100%;
+
+    max-width:700px;
+
+    padding:15px;
+
+    margin-top:15px;
+
+    border:none;
+
+    border-radius:15px;
+
+    background:rgba(255,255,255,.08);
+
+    color:white;
+
+    font-size:18px;
+
+    outline:none;
+
+    box-shadow:
+    0 0 10px rgba(255,0,255,.3);
+
+}
+
+/* FILE INPUT */
+
+input[type="file"]{
+
+    cursor:pointer;
+
+}
+
+/* BOTÕES */
+
+button{
+
+    margin-top:20px;
+
+    padding:15px 35px;
+
+    border:none;
+
+    border-radius:50px;
+
+    cursor:pointer;
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    color:white;
+
+    background:linear-gradient(
+        45deg,
+        #ff00ff,
+        #7000ff
+    );
+
+    box-shadow:
+    0 0 15px #ff00ff,
+    0 0 30px #7000ff;
+
+    transition:.3s;
+
+}
+
+button:hover{
+
+    transform:scale(1.05);
+
+}
+
+/* BARRA DE PROGRESSO */
+
+.progress{
+
+    width:100%;
+
+    max-width:700px;
+
+    height:25px;
+
+    margin:30px auto;
+
+    border-radius:20px;
+
+    overflow:hidden;
+
+    background:rgba(255,255,255,.1);
+
+    box-shadow:
+    0 0 15px rgba(255,0,255,.4);
+
+}
+
+.bar{
+
+    width:0%;
+
+    height:100%;
+
+    border-radius:20px;
+
+    background:linear-gradient(
+        90deg,
+        #ff00ff,
+        #7000ff
+    );
+
+    transition:.3s;
+
+    box-shadow:
+    0 0 15px #ff00ff,
+    0 0 40px #7000ff;
+
+}
+
+/* STATUS */
+
+#status{
+
+    font-size:22px;
+
+    margin-top:20px;
+
+    text-shadow:
+    0 0 10px #ff00ff;
+
+}
+
+/* DOWNLOAD */
+
+#downloadBtn{
+
+    display:none;
+
+    margin-top:25px;
+
+}
