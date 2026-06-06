@@ -4,8 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Conversor</title>
+
 <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <nav>
@@ -15,64 +17,64 @@
 
 <div class="container">
 
-<h1 class="logo">CONVERSOR</h1>
+    <h1 class="logo">CONVERSOR</h1>
 
-<p class="neon-text">
-Cole um link do YouTube ou escolha um ficheiro.
-</p>
+    <p class="neon-text">
+        Cole um link do YouTube ou escolha um ficheiro.
+    </p>
 
-<input
-type="text"
-id="urlInput"
-placeholder="Cole aqui o link do YouTube">
+    <!-- URL -->
+    <input
+        type="text"
+        id="urlInput"
+        placeholder="Cole aqui o link do YouTube"
+        autocomplete="off"
+    >
 
-<input
-type="file"
-id="fileInput">
+    <!-- FILE -->
+    <input
+        type="file"
+        id="fileInput"
+    >
 
-<select id="format">
+    <!-- FORMAT -->
+    <select id="format">
 
-<option value="mp3">MP3</option>
-<option value="wav">WAV</option>
-<option value="flac">FLAC</option>
-<option value="aac">AAC</option>
-<option value="ogg">OGG</option>
+        <option value="mp3">MP3</option>
+        <option value="wav">WAV</option>
+        <option value="flac">FLAC</option>
+        <option value="aac">AAC</option>
+        <option value="ogg">OGG</option>
 
-<option value="mp4">MP4</option>
-<option value="avi">AVI</option>
-<option value="mkv">MKV</option>
-<option value="mov">MOV</option>
+        <option value="mp4">MP4</option>
+        <option value="avi">AVI</option>
+        <option value="mkv">MKV</option>
+        <option value="mov">MOV</option>
 
-</select>
+    </select>
 
-<button onclick="startConversion()">
-CONVERTER
-</button>
+    <!-- BUTTON -->
+    <button type="button" onclick="startConversion()">
+        CONVERTER
+    </button>
 
-<div class="progress">
+    <!-- PROGRESS -->
+    <div class="progress">
+        <div class="bar" id="bar"></div>
+    </div>
 
-<div
-class="bar"
-id="bar">
+    <!-- STATUS -->
+    <div id="status">Aguardando...</div>
+
+    <!-- DOWNLOAD -->
+    <button id="downloadBtn" style="display:none;" type="button">
+        DOWNLOAD
+    </button>
+
 </div>
 
-</div>
-
-<div id="status">
-Aguardando...
-</div>
-
-<button
-id="downloadBtn"
-style="display:none;">
-
-DOWNLOAD
-
-</button>
-
-</div>
-
-<script src="/script.js"></script>
+<!-- SCRIPT (IMPORTANTE: SEM / NO INÍCIO) -->
+<script src="script.js"></script>
 
 </body>
 </html>
