@@ -38,10 +38,9 @@ const fake = setInterval(() => {
 
         const data = await res.json();
 
-        clearInterval(interval);
-
-        bar.style.width = "100%";
-        status.innerHTML = "Concluído ✔";
+        clearInterval(fake);
+bar.style.width = "100%";
+status.innerHTML = "Concluído ✔";
 
         downloadBtn.style.display = "inline-block";
 
