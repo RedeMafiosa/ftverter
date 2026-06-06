@@ -9,6 +9,7 @@ async function startConversion() {
     const downloadBtn = document.getElementById("downloadBtn");
 
     status.innerHTML = "A enviar...";
+    bar.style.width = "0%";
 
     const formData = new FormData();
     formData.append("format", format);
@@ -16,20 +17,17 @@ async function startConversion() {
     if (url) formData.append("url", url);
     if (file) formData.append("file", file);
 
-    try {
-
-        // fake progress suave até 90%
     let progress = 0;
-const bar = document.getElementById("bar");
-const status = document.getElementById("status");
 
-const fake = setInterval(() => {
-    if (progress < 90) {
-        progress += Math.random() * 8;
-        bar.style.width = progress + "%";
-        status.innerHTML = "A converter... " + Math.floor(progress) + "%";
-    }
-}, 400);
+    const fake = setInterval(() => {
+        if (progress < 90) {
+            progress += Math.random() * 8;
+            bar.style.width = progress + "%";
+            status.innerHTML = "A converter... " + Math.floor(progress) + "%";
+        }
+    }, 400);
+
+    try {
 
         const res = await fetch("/convert", {
             method: "POST",
@@ -39,8 +37,9 @@ const fake = setInterval(() => {
         const data = await res.json();
 
         clearInterval(fake);
-bar.style.width = "100%";
-status.innerHTML = "Concluído ✔";
+
+        bar.style.width = "100%";
+        status.innerHTML = "Concluído ✔";
 
         downloadBtn.style.display = "inline-block";
 
@@ -54,6 +53,9 @@ status.innerHTML = "Concluído ✔";
         };
 
     } catch (err) {
+
+        clearInterval(fake);
+
         console.error(err);
         status.innerHTML = "Erro na conversão";
     }
