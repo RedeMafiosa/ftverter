@@ -19,14 +19,17 @@ async function startConversion() {
     try {
 
         // fake progress suave até 90%
-        let progress = 0;
-        const interval = setInterval(() => {
-            if (progress < 90) {
-                progress += 5;
-                bar.style.width = progress + "%";
-                status.innerHTML = progress + "%";
-            }
-        }, 400);
+    let progress = 0;
+const bar = document.getElementById("bar");
+const status = document.getElementById("status");
+
+const fake = setInterval(() => {
+    if (progress < 90) {
+        progress += Math.random() * 8;
+        bar.style.width = progress + "%";
+        status.innerHTML = "A converter... " + Math.floor(progress) + "%";
+    }
+}, 400);
 
         const res = await fetch("/convert", {
             method: "POST",
