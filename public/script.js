@@ -1,129 +1,58 @@
 async function startConversion() {
 
-    const url =
-    document.getElementById("urlInput").value;
+    const url = document.getElementById("urlInput").value;
+    const file = document.getElementById("fileInput").files[0];
+    const format = document.getElementById("format").value;
 
-    const file =
-    document.getElementById("fileInput").files[0];
+    const status = document.getElementById("status");
+    const bar = document.getElementById("bar");
+    const downloadBtn = document.getElementById("downloadBtn");
 
-    const format =
-    document.getElementById("format").value;
+    status.innerHTML = "A enviar...";
 
-    const status =
-    document.getElementById("status");
+    const formData = new FormData();
+    formData.append("format", format);
 
-    const bar =
-    document.getElementById("bar");
+    if (url) formData.append("url", url);
+    if (file) formData.append("file", file);
 
-    const downloadBtn =
-    document.getElementById("downloadBtn");
+    try {
 
-    if(!url && !file){
-
-        alert(
-            "Cole um link ou escolha um ficheiro."
-        );
-
-        return;
-
-    }
-
-    status.innerHTML =
-    "A converter...";
-
-    bar.style.width = "0%";
-
-    let progress = 0;
-
-    const fakeProgress =
-    setInterval(()=>{
-
-        if(progress < 90){
-
-            progress += 10;
-
-            bar.style.width =
-            progress + "%";
-
-            status.innerHTML =
-            progress + "%";
-
-        }
-
-    },500);
-
-    try{
-
-        const formData =
-        new FormData();
-
-        formData.append(
-            "format",
-            format
-        );
-
-        if(url){
-
-            formData.append(
-                "url",
-                url
-            );
-
-        }
-
-        if(file){
-
-            formData.append(
-                "file",
-                file
-            );
-
-        }
-
-        const resposta =
-        await fetch(
-            "/convert",
-            {
-                method:"POST",
-                body:formData
+        // fake progress suave até 90%
+        let progress = 0;
+        const interval = setInterval(() => {
+            if (progress < 90) {
+                progress += 5;
+                bar.style.width = progress + "%";
+                status.innerHTML = progress + "%";
             }
-        );
+        }, 400);
 
-        const dados =
-        await resposta.json();
+        const res = await fetch("/convert", {
+            method: "POST",
+            body: formData
+        });
 
-        clearInterval(
-            fakeProgress
-        );
+        const data = await res.json();
 
-        bar.style.width =
-        "100%";
+        clearInterval(interval);
 
-        status.innerHTML =
-        "Conversão concluída ✔";
+        bar.style.width = "100%";
+        status.innerHTML = "Concluído ✔";
 
-        downloadBtn.style.display =
-        "inline-block";
+        downloadBtn.style.display = "inline-block";
 
-        downloadBtn.onclick =
-        ()=>{
-
-            window.open(
-                dados.download,
-                "_blank"
-            );
-
+        downloadBtn.onclick = () => {
+            const link = document.createElement("a");
+            link.href = data.download;
+            link.download = "ficheiro." + format;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         };
 
-    }catch(e){
-
-        clearInterval(
-            fakeProgress
-        );
-
-        status.innerHTML =
-        "Erro na conversão.";
-
+    } catch (err) {
+        console.error(err);
+        status.innerHTML = "Erro na conversão";
     }
-
 }
