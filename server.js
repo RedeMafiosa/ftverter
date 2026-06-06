@@ -39,26 +39,41 @@ app.post("/convert", upload.single("file"), async (req, res) => {
         // =========================
         // YOUTUBE DOWNLOAD
         // =========================
-        if (url && ytdl.validateURL(url)) {
+     if (url && ytdl.validateURL(url)) {
 
-            const stream = ytdl(url, { quality: "highestaudio" });
+    const outputName = `output-${Date.now()}.${format}`;
+    const outputPath = path.join(__dirname, "outputs", outputName);
 
-            ffmpeg(stream)
-                .audioBitrate(192)
-                .toFormat(format)
-                .on("end", () => {
-                    return res.json({
-                        download: `/outputs/${outputName}`
-                    });
-                })
-                .on("error", (err) => {
-                    console.log(err);
-                    return res.status(500).json({ error: "Erro conversão YouTube" });
-                })
-                .save(outputPath);
+    const stream = ytdl(url, {
+        quality: "highestaudio",
+        filter: "audioonly"
+    });
 
-            return;
-        }
+    let proc = ffmpeg(stream)
+        .audioBitrate(192)
+        .toFormat(format)
+        .save(outputPath);
+
+    // progresso REAL do ffmpeg
+    proc.on("progress", (p) => {
+        console.log(`Progresso: ${p.targetSize || 0}kb`);
+    });
+
+    proc.on("end", () => {
+        return res.json({
+            download: `/outputs/${outputName}`
+        });
+    });
+
+    proc.on("error", (err) => {
+        console.log(err);
+        return res.status(500).json({
+            error: "Erro na conversão YouTube"
+        });
+    });
+
+    return;
+}
 
         // =========================
         // FILE UPLOAD
