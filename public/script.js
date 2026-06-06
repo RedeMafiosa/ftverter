@@ -8,7 +8,7 @@ async function startConversion() {
     const bar = document.getElementById("bar");
     const downloadBtn = document.getElementById("downloadBtn");
 
-    status.innerHTML = "A enviar...";
+    status.innerHTML = "A converter...";
     bar.style.width = "0%";
 
     const formData = new FormData();
@@ -21,7 +21,7 @@ async function startConversion() {
 
     const fake = setInterval(() => {
         if (progress < 90) {
-            progress += Math.random() * 8;
+            progress += Math.random() * 7;
             bar.style.width = progress + "%";
             status.innerHTML = "A converter... " + Math.floor(progress) + "%";
         }
@@ -44,18 +44,11 @@ async function startConversion() {
         downloadBtn.style.display = "inline-block";
 
         downloadBtn.onclick = () => {
-            const link = document.createElement("a");
-            link.href = data.download;
-            link.download = "ficheiro." + format;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            window.location.href = "/download/" + data.id;
         };
 
     } catch (err) {
-
         clearInterval(fake);
-
         console.error(err);
         status.innerHTML = "Erro na conversão";
     }
