@@ -3,37 +3,37 @@ const path = require("path");
 
 const app = express();
 
+// para JSON
 app.use(express.json());
 
-app.use(express.static(__dirname));
+// SERVIR FRONTEND CORRETAMENTE
+app.use(express.static(path.join(__dirname, "public")));
 
-app.get("/", (req,res)=>{
-    res.sendFile(
-        path.join(__dirname,"index.html")
-    );
+// HOME
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public/index.html"));
 });
 
-app.get("/converter",(req,res)=>{
-    res.sendFile(
-        path.join(__dirname,"converter.html")
-    );
+// CONVERTER PAGE
+app.get("/converter", (req, res) => {
+    res.sendFile(path.join(__dirname, "public/converter.html"));
 });
 
-app.post("/convert",(req,res)=>{
+// API (ainda fake por agora)
+app.post("/convert", (req, res) => {
 
-    const {url,format}=req.body;
+    const { url, format } = req.body;
 
-    console.log(url,format);
+    console.log("URL:", url);
+    console.log("FORMAT:", format);
 
     res.json({
-        download:"#"
+        download: "#"
     });
-
 });
 
-app.listen(
-    process.env.PORT || 3000,
-    ()=>{
-        console.log("Servidor online");
-    }
-);
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log("Servidor online na porta " + PORT);
+});
