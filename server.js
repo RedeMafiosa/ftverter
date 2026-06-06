@@ -17,9 +17,7 @@ const upload = multer({ dest: "uploads/" });
 
 const downloads = new Map();
 
-/* =========================
-   CONVERT
-========================= */
+/* CONVERT */
 app.post("/convert", upload.single("file"), (req, res) => {
 
     const { url, format } = req.body;
@@ -30,16 +28,13 @@ app.post("/convert", upload.single("file"), (req, res) => {
 
     const cleanup = () => {
         setTimeout(() => {
-            if (fs.existsSync(outputPath)) {
-                fs.unlinkSync(outputPath);
-            }
+            if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
             downloads.delete(id);
-        }, 5 * 60 * 1000);
+        }, 300000);
     };
 
     try {
 
-        // YOUTUBE
         if (url && ytdl.validateURL(url)) {
 
             const stream = ytdl(url, {
@@ -51,38 +46,32 @@ app.post("/convert", upload.single("file"), (req, res) => {
                 .audioBitrate(192)
                 .toFormat(format)
                 .on("end", () => {
-
                     downloads.set(id, outputPath);
                     cleanup();
-
                     return res.json({ id });
                 })
                 .on("error", (err) => {
                     console.log(err);
-                    return res.status(500).json({ error: "Erro conversão YouTube" });
+                    return res.status(500).json({ error: "Erro YouTube" });
                 })
                 .save(outputPath);
 
             return;
         }
 
-        // FILE UPLOAD
         if (file) {
 
             ffmpeg(file.path)
                 .toFormat(format)
                 .on("end", () => {
-
                     fs.unlinkSync(file.path);
-
                     downloads.set(id, outputPath);
                     cleanup();
-
                     return res.json({ id });
                 })
                 .on("error", (err) => {
                     console.log(err);
-                    return res.status(500).json({ error: "Erro conversão ficheiro" });
+                    return res.status(500).json({ error: "Erro ficheiro" });
                 })
                 .save(outputPath);
 
@@ -97,16 +86,14 @@ app.post("/convert", upload.single("file"), (req, res) => {
     }
 });
 
-/* =========================
-   DOWNLOAD POR ID
-========================= */
+/* DOWNLOAD */
 app.get("/download/:id", (req, res) => {
 
     const id = req.params.id;
     const filePath = downloads.get(id);
 
     if (!filePath || !fs.existsSync(filePath)) {
-        return res.status(404).send("Ficheiro não disponível ou expirado");
+        return res.status(404).send("Ficheiro expirado");
     }
 
     res.download(filePath, () => {
@@ -115,9 +102,7 @@ app.get("/download/:id", (req, res) => {
     });
 });
 
-/* =========================
-   PAGES (se precisares)
-========================= */
+/* PAGES */
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "index.html"));
 });
@@ -126,72 +111,6 @@ app.get("/converter", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "converter.html"));
 });
 
-/* =========================
-   START
-========================= */
+/* START */
 const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-    console.log("Servidor online na porta " + PORT);
-});                })
-                .save(outputPath);
-
-            return;
-        }
-
-        // FILE UPLOAD
-        if (file) {
-
-            ffmpeg(file.path)
-                .toFormat(format)
-                .on("end", () => {
-
-                    fs.unlinkSync(file.path);
-
-                    downloads.set(id, outputPath);
-                    cleanup();
-
-                    return res.json({ id });
-                })
-                .on("error", (err) => {
-                    console.log(err);
-                    return res.status(500).json({ error: "Erro conversão ficheiro" });
-                })
-                .save(outputPath);
-
-            return;
-        }
-
-        return res.status(400).json({ error: "Nada enviado" });
-
-    } catch (err) {
-        console.log(err);
-        return res.status(500).json({ error: "Erro servidor" });
-    }
-});
-
-/* =========================
-   DOWNLOAD SEGURO POR ID
-========================= */
-app.get("/download/:id", (req, res) => {
-
-    const id = req.params.id;
-    const filePath = downloads.get(id);
-
-    if (!filePath || !fs.existsSync(filePath)) {
-        return res.status(404).send("Ficheiro não disponível ou expirado");
-    }
-
-    res.download(filePath, () => {
-
-        // apagar depois de descarregar
-        fs.unlink(filePath, () => {});
-        downloads.delete(id);
-    });
-});
-
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-    console.log("Servidor PRO online na porta " + PORT);
-});
+app.listen(PORT, () => console.log("Online " + PORT));
