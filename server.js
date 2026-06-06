@@ -7,88 +7,78 @@ const ytdl = require("ytdl-core");
 const fs = require("fs");
 
 const app = express();
-
 ffmpeg.setFfmpegPath(ffmpegPath);
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
-app.use("/outputs", express.static(path.join(__dirname, "outputs")));
 
 const upload = multer({ dest: "uploads/" });
 
-// HOME
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "public/index.html"));
-});
+// memória temporária de downloads
+const downloads = new Map();
 
-// CONVERTER PAGE
-app.get("/converter", (req, res) => {
-    res.sendFile(path.join(__dirname, "public/converter.html"));
-});
-
-// CONVERT REAL
+/* =========================
+   CONVERTER
+========================= */
 app.post("/convert", upload.single("file"), async (req, res) => {
 
+    const { url, format } = req.body;
+    const file = req.file;
+
+    const id = Date.now().toString();
+    const outputPath = path.join(__dirname, "uploads", `${id}.${format}`);
+
+    const cleanup = () => {
+        setTimeout(() => {
+            if (fs.existsSync(outputPath)) {
+                fs.unlinkSync(outputPath);
+            }
+            downloads.delete(id);
+        }, 5 * 60 * 1000); // 5 minutos
+    };
+
     try {
-        const { url, format } = req.body;
-        const file = req.file;
 
-        const outputName = `output-${Date.now()}.${format}`;
-        const outputPath = path.join(__dirname, "outputs", outputName);
+        // YOUTUBE
+        if (url && ytdl.validateURL(url)) {
 
-        // =========================
-        // YOUTUBE DOWNLOAD
-        // =========================
-     if (url && ytdl.validateURL(url)) {
+            const stream = ytdl(url, {
+                filter: "audioonly",
+                quality: "highestaudio"
+            });
 
-    const outputName = `output-${Date.now()}.${format}`;
-    const outputPath = path.join(__dirname, "outputs", outputName);
+            ffmpeg(stream)
+                .audioBitrate(192)
+                .toFormat(format)
+                .on("end", () => {
 
-    const stream = ytdl(url, {
-        quality: "highestaudio",
-        filter: "audioonly"
-    });
+                    downloads.set(id, outputPath);
+                    cleanup();
 
-    let proc = ffmpeg(stream)
-        .audioBitrate(192)
-        .toFormat(format)
-        .save(outputPath);
+                    return res.json({ id });
+                })
+                .on("error", (err) => {
+                    console.log(err);
+                    return res.status(500).json({ error: "Erro conversão YouTube" });
+                })
+                .save(outputPath);
 
-    // progresso REAL do ffmpeg
-    proc.on("progress", (p) => {
-        console.log(`Progresso: ${p.targetSize || 0}kb`);
-    });
+            return;
+        }
 
-    proc.on("end", () => {
-        return res.json({
-            download: `/outputs/${outputName}`
-        });
-    });
-
-    proc.on("error", (err) => {
-        console.log(err);
-        return res.status(500).json({
-            error: "Erro na conversão YouTube"
-        });
-    });
-
-    return;
-}
-
-        // =========================
         // FILE UPLOAD
-        // =========================
         if (file) {
 
             ffmpeg(file.path)
                 .toFormat(format)
                 .on("end", () => {
 
-                    fs.unlinkSync(file.path); // limpar upload
+                    fs.unlinkSync(file.path);
 
-                    return res.json({
-                        download: `/outputs/${outputName}`
-                    });
+                    downloads.set(id, outputPath);
+                    cleanup();
+
+                    return res.json({ id });
                 })
                 .on("error", (err) => {
                     console.log(err);
@@ -103,12 +93,32 @@ app.post("/convert", upload.single("file"), async (req, res) => {
 
     } catch (err) {
         console.log(err);
-        return res.status(500).json({ error: "Erro no servidor" });
+        return res.status(500).json({ error: "Erro servidor" });
     }
+});
+
+/* =========================
+   DOWNLOAD SEGURO POR ID
+========================= */
+app.get("/download/:id", (req, res) => {
+
+    const id = req.params.id;
+    const filePath = downloads.get(id);
+
+    if (!filePath || !fs.existsSync(filePath)) {
+        return res.status(404).send("Ficheiro não disponível ou expirado");
+    }
+
+    res.download(filePath, () => {
+
+        // apagar depois de descarregar
+        fs.unlink(filePath, () => {});
+        downloads.delete(id);
+    });
 });
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-    console.log("Servidor online na porta " + PORT);
+    console.log("Servidor PRO online na porta " + PORT);
 });
