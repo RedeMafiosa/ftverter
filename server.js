@@ -10,17 +10,17 @@ const app = express();
 ffmpeg.setFfmpegPath(ffmpegPath);
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 const upload = multer({ dest: "uploads/" });
 
-// memória temporária de downloads
 const downloads = new Map();
 
 /* =========================
-   CONVERTER
+   CONVERT
 ========================= */
-app.post("/convert", upload.single("file"), async (req, res) => {
+app.post("/convert", upload.single("file"), (req, res) => {
 
     const { url, format } = req.body;
     const file = req.file;
@@ -34,7 +34,7 @@ app.post("/convert", upload.single("file"), async (req, res) => {
                 fs.unlinkSync(outputPath);
             }
             downloads.delete(id);
-        }, 5 * 60 * 1000); // 5 minutos
+        }, 5 * 60 * 1000);
     };
 
     try {
@@ -61,6 +61,79 @@ app.post("/convert", upload.single("file"), async (req, res) => {
                     console.log(err);
                     return res.status(500).json({ error: "Erro conversão YouTube" });
                 })
+                .save(outputPath);
+
+            return;
+        }
+
+        // FILE UPLOAD
+        if (file) {
+
+            ffmpeg(file.path)
+                .toFormat(format)
+                .on("end", () => {
+
+                    fs.unlinkSync(file.path);
+
+                    downloads.set(id, outputPath);
+                    cleanup();
+
+                    return res.json({ id });
+                })
+                .on("error", (err) => {
+                    console.log(err);
+                    return res.status(500).json({ error: "Erro conversão ficheiro" });
+                })
+                .save(outputPath);
+
+            return;
+        }
+
+        return res.status(400).json({ error: "Nada enviado" });
+
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ error: "Erro servidor" });
+    }
+});
+
+/* =========================
+   DOWNLOAD POR ID
+========================= */
+app.get("/download/:id", (req, res) => {
+
+    const id = req.params.id;
+    const filePath = downloads.get(id);
+
+    if (!filePath || !fs.existsSync(filePath)) {
+        return res.status(404).send("Ficheiro não disponível ou expirado");
+    }
+
+    res.download(filePath, () => {
+        fs.unlink(filePath, () => {});
+        downloads.delete(id);
+    });
+});
+
+/* =========================
+   PAGES (se precisares)
+========================= */
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+app.get("/converter", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "converter.html"));
+});
+
+/* =========================
+   START
+========================= */
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log("Servidor online na porta " + PORT);
+});                })
                 .save(outputPath);
 
             return;
